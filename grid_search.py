@@ -21,7 +21,7 @@ test_data = pd.read_csv('./data/merged_task2_features.csv')
 X_test = test_data.loc[:, 'lfhf':'elapsed-seconds']
 y_test = test_data.loc[:, 'label']
 
-model = RandomForestClassifier(verbose=2)
+model = RandomForestClassifier()
 
 cv = KFold(5, shuffle=True)
 param_grid = {
@@ -33,13 +33,14 @@ param_grid = {
         'n_estimators': [1, 10, 50, 100],
         'bootstrap': [False, True]
         }
-grid_search = GridSearchCV(model, param_grid, cv=cv, scoring='accuracy')
+grid_search = GridSearchCV(model, param_grid, cv=cv, scoring='accuracy', verbose=2)
 grid_search.fit(X_train, y_train)
+
 y_pred = grid_search.predict(X_test)
 y_train_pred = grid_search.predict(X_train)
 cm = confusion_matrix(y_test, y_pred)
-print(grid_search.best_score_, grid_search.best_params_)
-print(cross_val_score(model, X_train, y_train, cv=cv, scoring='accuracy'))
+print(grid_search.best_estimator_, grid_search.best_params_)
+# print(cross_val_score(model, X_train, y_train, cv=cv, scoring='accuracy'))
 
 print("Confusion Matrix: ", cm)
 print("Accuracy to train: ", accuracy_score(y_train, y_train_pred))

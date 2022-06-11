@@ -1,4 +1,7 @@
 import pandas as pd
+from sklearn.preprocessing import Normalizer, RobustScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.decomposition import FastICA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,\
         cross_val_score, KFold, GridSearchCV
@@ -15,12 +18,20 @@ y_train = shuffled_data.loc[:, 'label']
 smote = SMOTE(sampling_strategy='auto', k_neighbors=5, random_state=42)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
-test_data = pd.read_csv('./data/merged_task2_features.csv')
+test_data = pd.read_csv('./data/merged_task2_features_fixed.csv')
 X_test = test_data.loc[:, 'lfhf':'elapsed-seconds']
 y_test = test_data.loc[:, 'label']
 print("test positive: ", len(y_test[y_test == 1]), "test negative: ", len(y_test[y_test == 0]))
 
-model = RandomForestClassifier()
+# model = RandomForestClassifier(criterion='gini', max_depth=100, n_estimators=100)
+model = RandomForestClassifier(
+        criterion='gini',
+        max_depth=100,
+        n_estimators=5,
+        min_samples_leaf=1,
+        min_samples_split=5
+        )
+
 model.fit(X_train, y_train)
 
 y_test_pred = model.predict(X_test)
@@ -36,6 +47,8 @@ print("Precision Score: ", round(precision_score(y_test, y_test_pred), 2))
 print("Recall Score: ", round(recall_score(y_test, y_test_pred), 2))
 print("F-1 Score: ", round(f1_score(y_test, y_test_pred), 2))
 
+"""
 plt.scatter(x=range(len(y_test_pred)), y=y_test_pred+0.01, s=0.1, c='b', alpha=0.5)
 plt.scatter(x=range(len(y_test)), y=y_test, s=0.1, c='r', alpha=0.5)
 plt.show()
+"""
