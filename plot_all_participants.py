@@ -1,46 +1,13 @@
 import os
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,\
         cross_val_score, KFold, GridSearchCV
 from sklearn.metrics import accuracy_score, confusion_matrix,\
     precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
-from imblearn.over_sampling import SMOTE
+from rf_pred import rf_pred
 
 train_data = pd.read_csv('./data/merged_task2_features_fixed.csv')
-shuffled_data = train_data.sample(n=len(train_data), random_state=42)
-X_train = shuffled_data.loc[:, 'sloc':'elapsed-seconds']
-y_train = shuffled_data.loc[:, 'label']
-print("train positive: ", len(y_train[y_train == 1]), "train negative: ", len(y_train[y_train == 0]))
-
-smote = SMOTE(sampling_strategy='auto', k_neighbors=5, random_state=42)
-X_train, y_train = smote.fit_resample(X_train, y_train)
-
-# code-related modal model
-model = RandomForestClassifier(
-        criterion='gini',
-        max_depth=490,
-        max_features=40,
-        n_estimators=40,
-        min_samples_leaf=1,
-        min_samples_split=70,
-        random_state=42
-        )
-"""
-
-# multi-modal model
-model = RandomForestClassifier(
-        criterion='entropy',
-        max_depth=180,
-        max_features=28,
-        min_samples_split=10,
-        n_estimators=36,
-        random_state=42
-        )
-"""
-
-model.fit(X_train, y_train)
 
 fig, axes = plt.subplots(5, sharex="all", constrained_layout=True)
 plt.rcParams['font.family'] = 'Times New Roman'
@@ -58,9 +25,8 @@ for filename in files:
         continue
     file_path = os.path.join(target_dir, filename)
     test_data = pd.read_csv(file_path)
-    X_test = test_data.loc[:, 'sloc':'elapsed-seconds']
     y_test = test_data.loc[:, 'label']
-    y_test_pred = model.predict(X_test)
+    y_test_pred = rf_pred(train_data, test_data, mode='code', random_seed=42)
 
     plot_title = filename.split('.')[0]
     axes[i].set_title(plot_title, fontsize=10)
@@ -73,6 +39,8 @@ lines, labels = fig.axes[-1].get_legend_handles_labels()
 fig.legend(lines, labels, loc='upper right', markerscale=5, ncol=2, bbox_to_anchor=(1, 1.01), borderaxespad=0, fontsize=10)
 fig.supxlabel('elapsed seconds[s]')
 fig.supylabel('label')
-# plt.show()
+plt.show()
+"""
 fname = 'code_all_p1.pdf'
 plt.savefig(fname, format='pdf')
+"""
