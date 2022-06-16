@@ -8,9 +8,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix,\
 import matplotlib.pyplot as plt
 from imblearn.over_sampling import SMOTE
 
-train_data = pd.read_csv('./data/merged_task1_features.csv')
+train_data = pd.read_csv('./data/merged_task2_features_fixed.csv')
 shuffled_data = train_data.sample(n=len(train_data), random_state=42)
-X_train = shuffled_data.loc[:, 'lfhf':'elapsed-seconds']
+X_train = shuffled_data.loc[:, 'sloc':'elapsed-seconds']
 y_train = shuffled_data.loc[:, 'label']
 print("train positive: ", len(y_train[y_train == 1]), "train negative: ", len(y_train[y_train == 0]))
 
@@ -18,7 +18,6 @@ smote = SMOTE(sampling_strategy='auto', k_neighbors=5, random_state=42)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
 # code-related modal model
-"""
 model = RandomForestClassifier(
         criterion='gini',
         max_depth=490,
@@ -28,8 +27,8 @@ model = RandomForestClassifier(
         min_samples_split=70,
         random_state=42
         )
-
 """
+
 # multi-modal model
 model = RandomForestClassifier(
         criterion='entropy',
@@ -39,6 +38,7 @@ model = RandomForestClassifier(
         n_estimators=36,
         random_state=42
         )
+"""
 
 model.fit(X_train, y_train)
 
@@ -49,7 +49,7 @@ plt.rcParams["scatter.marker"] = ","
 plt.rcParams["scatter.edgecolors"] = None
 # plt.rcParams['figure.dpi'] = 300
 
-target_dir = './data/paritcipants/anon-task2'
+target_dir = './data/paritcipants/anon-task1'
 files = os.listdir(target_dir)
 files.sort()
 i = 0
@@ -58,7 +58,7 @@ for filename in files:
         continue
     file_path = os.path.join(target_dir, filename)
     test_data = pd.read_csv(file_path)
-    X_test = test_data.loc[:, 'lfhf':'elapsed-seconds']
+    X_test = test_data.loc[:, 'sloc':'elapsed-seconds']
     y_test = test_data.loc[:, 'label']
     y_test_pred = model.predict(X_test)
 
@@ -70,9 +70,9 @@ for filename in files:
     i += 1
 
 lines, labels = fig.axes[-1].get_legend_handles_labels()
-fig.legend(lines, labels, loc='upper right', markerscale=5, ncol=2, bbox_to_anchor=(1, 1), borderaxespad=0, fontsize=10)
+fig.legend(lines, labels, loc='upper right', markerscale=5, ncol=2, bbox_to_anchor=(1, 1.01), borderaxespad=0, fontsize=10)
 fig.supxlabel('elapsed seconds[s]')
 fig.supylabel('label')
 # plt.show()
-fname = 'multi_all_p.pdf'
+fname = 'code_all_p1.pdf'
 plt.savefig(fname, format='pdf')
