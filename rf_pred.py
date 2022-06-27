@@ -16,12 +16,14 @@ def show_scores(y_test, y_pred):
     print("F-1 Score: ", round(f1_score(y_test, y_pred), 3))
 
 
-def rf_pred(train_data, test_data, mode='multi', random_seed=None):
+def rf_pred(train_data, test_data, mode='multi', random_seed=None, verbosity=0):
     start_col_name = 'lfhf'
     end_col_name = 'elapsed-seconds'
     model = ''
     if (mode == 'code'):
         start_col_name = 'sloc'
+    elif (mode == 'bio'):
+        end_col_name = 'pnn50'
     shuffled_data = train_data.sample(n=len(train_data), random_state=random_seed)
     X_train = shuffled_data.loc[:, start_col_name:end_col_name]
     y_train = shuffled_data.loc[:, 'label']
@@ -51,17 +53,28 @@ def rf_pred(train_data, test_data, mode='multi', random_seed=None):
                 min_samples_split=70,
                 random_state=random_seed
                 )
+    elif (mode == 'bio'):
+        model = RandomForestClassifier(
+                criterion='entropy',
+                max_depth=85,
+                max_features=75,
+                n_estimators=85,
+                min_samples_leaf=1,
+                min_samples_split=10,
+                random_state=random_seed
+                )
 
     model.fit(X_train, y_train)
     y_test_pred = model.predict(X_test)
-    show_scores(y_test, y_test_pred)
+    if (verbosity ==1):
+        show_scores(y_test, y_test_pred)
     return y_test_pred
 
 
 def main():
     task1_data = pd.read_csv('./data/merged_task1_features.csv')
     task2_data = pd.read_csv('./data/merged_task2_features_fixed.csv')
-    rf_pred(train_data=task1_data, test_data=task2_data, mode='code', random_seed=42)
+    rf_pred(train_data=task1_data, test_data=task2_data, mode='bio', random_seed=42)
 
 
 if __name__ == '__main__':
