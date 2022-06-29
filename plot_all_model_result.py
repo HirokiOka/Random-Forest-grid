@@ -15,6 +15,7 @@ plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams["font.size"] = 12
 plt.rcParams["scatter.marker"] = ","
 plt.rcParams["scatter.edgecolors"] = None
+plt.rcParams["figure.dpi"] = 36
 # plt.subplots_adjust(hspace=0.4)
 # plt.rcParams["figure.subplot.hspace"] = 0.9
 plt.rcParams["legend.labelspacing"] = 0.1
@@ -43,14 +44,17 @@ for filename in files:
     plot_title = filename.split('.')[0]
     axes[i].set_title(plot_title, fontsize=10)
     axes[i].set_ylim([-0.2, 1.5])
-    axes[i].scatter(x=range(len(y_multi_pred)), y=y_multi_pred+0.3, s=1, c='black', label='Multimodal')
-    axes[i].scatter(x=range(len(y_code_pred)), y=y_code_pred+0.2, s=1, c='blue', label='Code-related')
-    axes[i].scatter(x=range(len(y_bio_pred)), y=y_bio_pred+0.1, s=1, c='green', label='Biometric')
-    axes[i].scatter(x=range(len(y_test)), y=y_test, s=1, c='r', label='Actual')
+    axes[i].scatter(x=range(len(y_multi_pred)), y=y_multi_pred+0.3, s=1, c='black', label='Multimodal', zorder=-10)
+    axes[i].scatter(x=range(len(y_code_pred)), y=y_code_pred+0.2, s=1, c='blue', label='Code-related', zorder=-10)
+    axes[i].scatter(x=range(len(y_bio_pred)), y=y_bio_pred+0.1, s=1, c='green', label='Biometric', zorder=-10)
+    axes[i].scatter(x=range(len(y_test)), y=y_test, s=1, c='r', label='Actual', zorder=-10)
+    axes[i].set_rasterization_zorder(0)
     i += 1
 
 lines, labels = fig.axes[-1].get_legend_handles_labels()
 fig.legend(lines, labels, loc='upper right', markerscale=3, ncol=4, borderaxespad=0, bbox_to_anchor=(0.995, 1), fontsize=10, handletextpad=0, borderpad=0)
 fig.supxlabel('Time[s]')
 fig.supylabel('label')
-plt.show()
+# plt.gca().set_rasterized(True)
+# plt.show()
+plt.savefig('pred1.pdf')
